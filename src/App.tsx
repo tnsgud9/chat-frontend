@@ -3,6 +3,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Home from "./pages/Home";
 import AuthLayout from "./layouts/AuthLayout";
+import Chat from "./pages/Chat";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -42,6 +43,7 @@ const App = () => {
             </div>
           ),
           children: [
+            { index: true, element: <Chat /> },
             {
               path: "rooms",
               element: <div>Chat Rooms Page</div>,
