@@ -1,6 +1,6 @@
-import SignupForm from "@/components/features/forms/SignupForm";
-import AuthCard from "../components/layouts/AuthCard";
-import AuthFormCard from "@/components/layouts/AuthFormCard";
+import AuthCard from "@/components/auth/AuthCard";
+import AuthFormCard from "@/components/auth/AuthFormCard";
+import SignupForm from "@/features/forms/SignupForm";
 
 const Signup = () => {
   return (
