@@ -9,12 +9,6 @@ const App = () => {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: (
-        <div>
-          Root Layout
-          <Outlet />
-        </div>
-      ),
       children: [
         { index: true, element: <Home /> },
         {
@@ -37,11 +31,7 @@ const App = () => {
         },
         {
           path: "chat",
-          element: (
-            <div>
-              Chat Layout <Outlet />
-            </div>
-          ),
+          element: <Outlet />,
           children: [
             { index: true, element: <Chat /> },
             {

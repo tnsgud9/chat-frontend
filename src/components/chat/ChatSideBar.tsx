@@ -38,6 +38,7 @@ import type {
   CollapsibleTrigger,
   CollapsibleContent,
 } from "@radix-ui/react-collapsible";
+import { Input } from "../ui/input";
 
 const data = {
   user: {
@@ -180,6 +181,8 @@ const ChatSideBar = ({ title }: ChatSideBarProps) => {
                 </div>
               </a>
             </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <a href="#">
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
@@ -207,19 +210,22 @@ const ChatSideBar = ({ title }: ChatSideBarProps) => {
         <SidebarGroup>
           <SidebarGroupLabel>Messages</SidebarGroupLabel>
           <SidebarMenu>
-            <SidebarMenuButton size="lg" asChild>
-              <a href="#">
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-full">
-                  RN
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">RoomName</span>
-                  <span className="truncate text-xs">Text</span>
-                </div>
-              </a>
-            </SidebarMenuButton>
-
-            <SidebarMenuItem></SidebarMenuItem>
+            <SidebarMenuItem>
+              <Input type="text" placeholder="Search" />
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton size="lg" asChild>
+                <a href="#">
+                  <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-full">
+                    RN
+                  </div>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">RoomName</span>
+                    <span className="truncate text-xs">Text</span>
+                  </div>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
