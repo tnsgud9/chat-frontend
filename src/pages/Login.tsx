@@ -1,5 +1,5 @@
 import AuthCard from "@/components/auth/AuthCard";
-import LoginForm from "@/features/forms/LoginForm";
+import LoginForm from "@/components/auth/LoginForm";
 
 const Login = () => {
   return (
