@@ -7,7 +7,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import type { ChatRoomElementProps } from "./ChatRoomElement";
-import { Input } from "../ui/input";
+import { Input } from "@/components/ui/input";
 
 interface ChatRoomListProps {
   list: ChatRoomElementProps[];

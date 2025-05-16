@@ -4,6 +4,7 @@ import Signup from "./pages/Signup";
 import Home from "./pages/Home";
 import AuthLayout from "./layouts/AuthLayout";
 import Chat from "./pages/Chat";
+import ChatLayout from "./layouts/ChatLayout";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -31,7 +32,11 @@ const App = () => {
         },
         {
           path: "chat",
-          element: <Outlet />,
+          element: (
+            <ChatLayout>
+              <Outlet />
+            </ChatLayout>
+          ),
           children: [
             { index: true, element: <Chat /> },
             {
