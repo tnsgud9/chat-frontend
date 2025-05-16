@@ -69,14 +69,6 @@ const Chat = () => {
             </div>
           </ScrollArea>
         </CardContent>
-
-        {/* 채팅 메시지 입력 구간 */}
-        <CardContent className="flex-1 p-4 overflow-y-auto">
-          <ScrollArea className="h-full">
-            <div className="space-y-3"></div>
-          </ScrollArea>
-        </CardContent>
-
         <div className="flex items-center gap-2 border-t p-4">
           <Input placeholder="Type your message..." />
           <Button type="submit">Send</Button>
