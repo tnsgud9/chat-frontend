@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Separator } from "@radix-ui/react-separator";
+import { Send } from "lucide-react";
 
 const Chat = () => {
   return (
@@ -70,8 +71,18 @@ const Chat = () => {
           </ScrollArea>
         </CardContent>
         <div className="flex items-center gap-2 border-t p-4">
-          <Input placeholder="Type your message..." />
-          <Button type="submit">Send</Button>
+          <Input
+            id="message"
+            placeholder="Type your message..."
+            className="flex-1"
+            autoComplete="off"
+            // value={input}
+            onChange={(event) => setInput(event.target.value)}
+          />
+          <Button type="submit" size="icon">
+            <Send />
+            <span className="sr-only">Send</span>
+          </Button>
         </div>
       </SidebarInset>
     </SidebarProvider>
