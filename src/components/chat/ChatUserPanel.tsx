@@ -16,12 +16,12 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-interface UserPanelProps {
+interface ChatUserPanelProps {
   nickname: string;
   username: string;
 }
 
-const UserPanel = ({ nickname, username }: UserPanelProps) => {
+const ChatUserPanel = ({ nickname, username }: ChatUserPanelProps) => {
   const { isMobile } = useSidebar();
   return (
     <SidebarMenu>
@@ -77,4 +77,4 @@ const UserPanel = ({ nickname, username }: UserPanelProps) => {
   );
 };
 
-export default UserPanel;
+export default ChatUserPanel;
