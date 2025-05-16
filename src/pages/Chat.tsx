@@ -1,4 +1,5 @@
 import ChatSideBar from "@/components/chat/ChatSideBar";
+import Message from "@/components/chat/Message";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Breadcrumb,
@@ -41,32 +42,19 @@ const Chat = () => {
         <CardContent className="flex-1 p-4 overflow-y-auto">
           <ScrollArea className="h-full">
             <div className="space-y-4">
-              {/* 받은 메시지 */}
-              <div className="flex items-start gap-2">
-                <Avatar>
-                  <AvatarFallback>PD</AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="text-xs text-muted-foreground">
-                    Alice · 2025-05-16 10:32
-                  </div>
-                  <div className="mt-1 max-w-xs rounded-2xl bg-muted px-4 py-2 text-sm text-muted-foreground shadow">
-                    안녕하세요!
-                  </div>
-                </div>
-              </div>
+              <Message
+                nickname={"Bob"}
+                createdAt={new Date()}
+                content={"Hi"}
+                isSender={false}
+              />
 
-              {/* 보낸 메시지 */}
-              <div className="flex items-start justify-end gap-2">
-                <div className="text-right">
-                  <div className="text-xs text-muted-foreground">
-                    You · 2025-05-16 10:33
-                  </div>
-                  <div className="mt-1 max-w-xs rounded-2xl bg-sidebar-primary px-4 py-2 text-sm text-white shadow">
-                    안녕하세요, 반갑습니다.
-                  </div>
-                </div>
-              </div>
+              <Message
+                nickname={"Bob"}
+                createdAt={new Date()}
+                content={"hello world"}
+                isSender={true}
+              />
             </div>
           </ScrollArea>
         </CardContent>
