@@ -1,159 +1,152 @@
-import * as crypto from "crypto";
+import forge from "node-forge";
 
-// RSA 공개키와 개인키 생성
-export const generateRSAKeyPair = (): {
+// RSA 키 쌍 생성
+export const generateRSAKeyPair = async (): Promise<{
   publicKey: string;
   privateKey: string;
-} => {
-  const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
-    modulusLength: 2048,
-    publicKeyEncoding: {
-      type: "spki", // 공개키 인코딩 형식
-      format: "pem", // PEM 형식
-    },
-    privateKeyEncoding: {
-      type: "pkcs8", // 개인키 인코딩 형식
-      format: "pem", // PEM 형식
-    },
+}> => {
+  return new Promise((resolve) => {
+    forge.pki.rsa.generateKeyPair(
+      { bits: 2048, workers: 2 },
+      (err, keypair) => {
+        if (err) throw err;
+        resolve({
+          publicKey: forge.pki.publicKeyToPem(keypair.publicKey),
+          privateKey: forge.pki.privateKeyToPem(keypair.privateKey),
+        });
+      },
+    );
   });
-
-  return { publicKey, privateKey };
 };
 
-// AES-256-CBC 대칭 암호화 (SHA-256을 통해 키 변환)
+// AES-256-CBC 암호화
 export const encryptAES = (password: string, data: string): string => {
-  // 1. 비밀번호를 SHA-256 해시를 사용하여 32바이트(256비트) AES 키로 변환
-  const key = crypto.createHash("sha256").update(password).digest();
+  const md = forge.md.sha256.create();
+  md.update(password);
+  const key = md.digest().getBytes().slice(0, 32);
+  const iv = forge.random.getBytesSync(16);
 
-  // 2. AES-256-CBC 방식에서는 16바이트(128비트) 초기화 벡터(IV)가 필요함
-  const iv = crypto.randomBytes(16);
+  const cipher = forge.cipher.createCipher("AES-CBC", key);
+  cipher.start({ iv });
+  cipher.update(forge.util.createBuffer(data, "utf8"));
+  cipher.finish();
 
-  // 3. AES-256-CBC 암호화 객체 생성 (key와 iv를 사용)
-  const cipher = crypto.createCipheriv("aes-256-cbc", key, iv);
-
-  // 4. 입력 데이터를 'utf8'에서 암호화하여 'base64'로 인코딩
-  let encrypted = cipher.update(data, "utf8", "base64");
-  encrypted += cipher.final("base64");
-
-  // 5. IV(초기화 벡터)와 암호문을 ":" 구분자로 합쳐서 반환 (복호화 시 분리 가능)
-  return `${iv.toString("base64")}:${encrypted}`;
+  const encrypted = forge.util.encode64(cipher.output.getBytes());
+  return `${forge.util.encode64(iv)}:${encrypted}`;
 };
 
-// AES-256-CBC 대칭 복호화
+// AES-256-CBC 복호화
 export const decryptAES = (password: string, encryptedData: string): string => {
-  // 1. 비밀번호를 SHA-256 해시를 사용하여 32바이트(256비트) AES 키로 변환
-  const key = crypto.createHash("sha256").update(password).digest();
-
-  // 2. 저장된 암호문에서 IV와 암호문을 분리
   const [ivBase64, encryptedBase64] = encryptedData.split(":");
+  const iv = forge.util.decode64(ivBase64);
+  const encrypted = forge.util.decode64(encryptedBase64);
 
-  // 3. IV와 암호문을 base64에서 Buffer 형태로 변환
-  const iv = Buffer.from(ivBase64, "base64");
-  const encrypted = Buffer.from(encryptedBase64, "base64");
+  const md = forge.md.sha256.create();
+  md.update(password);
+  const key = md.digest().getBytes().slice(0, 32);
 
-  // 4. AES-256-CBC 복호화 객체 생성
-  const decipher = crypto.createDecipheriv("aes-256-cbc", key, iv);
+  const decipher = forge.cipher.createDecipher("AES-CBC", key);
+  decipher.start({ iv });
+  decipher.update(forge.util.createBuffer(encrypted));
+  const success = decipher.finish();
 
-  // 5. 암호문을 base64에서 원래의 'utf8' 문자열로 복호화
-  const decrypted = decipher.update(encrypted); // Buffer 사용
-  return Buffer.concat([decrypted, decipher.final()]).toString("utf8");
-};
-// RSA 암호화 함수: 공개키를 사용하여 데이터를 암호화
-export const encryptRSA = (publicKey: string, data: string): string => {
-  const buffer = Buffer.from(data, "utf-8");
-  const encrypted = crypto.publicEncrypt(publicKey, buffer);
-  return encrypted.toString("base64"); // Base64로 인코딩하여 반환
+  if (!success) throw new Error("AES decryption failed");
+  return decipher.output.toString("utf8");
 };
 
-// RSA 복호화 함수: 개인키를 사용하여 암호화된 데이터를 복호화
+// RSA 암호화
+export const encryptRSA = (publicKeyPem: string, data: string): string => {
+  const publicKey = forge.pki.publicKeyFromPem(publicKeyPem);
+  const encrypted = publicKey.encrypt(data, "RSAES-PKCS1-V1_5");
+  return forge.util.encode64(encrypted);
+};
+
+// RSA 복호화
 export const decryptRSA = (
-  privateKey: string,
+  privateKeyPem: string,
   encryptedData: string,
 ): string => {
-  const buffer = Buffer.from(encryptedData, "base64");
-  const decrypted = crypto.privateDecrypt(privateKey, buffer);
-  return decrypted.toString("utf-8");
+  const privateKey = forge.pki.privateKeyFromPem(privateKeyPem);
+  const decrypted = privateKey.decrypt(
+    forge.util.decode64(encryptedData),
+    "RSAES-PKCS1-V1_5",
+  );
+  return decrypted;
 };
 
-// RSA 서명 생성 함수: 개인키를 사용하여 메시지 서명
-export const signRSA = (privateKey: string, data: string): string => {
-  const signer = crypto.createSign("SHA256");
-  signer.update(data);
-  signer.end();
-  const signature = signer.sign(privateKey, "base64");
-  return signature;
+// RSA 서명
+export const signRSA = (privateKeyPem: string, data: string): string => {
+  const privateKey = forge.pki.privateKeyFromPem(privateKeyPem);
+  const md = forge.md.sha256.create();
+  md.update(data, "utf8");
+  const signature = privateKey.sign(md);
+  return forge.util.encode64(signature);
 };
 
-// RSA 서명 유효성 검증 함수: 공개키를 사용하여 서명이 유효한지 검증
+// RSA 서명 검증
 export const verifyRSASignature = (
-  publicKey: string,
+  publicKeyPem: string,
   data: string,
-  signature: string,
+  signatureBase64: string,
 ): boolean => {
-  const verifier = crypto.createVerify("SHA256");
-  verifier.update(data);
-  verifier.end();
-  return verifier.verify(publicKey, signature, "base64");
+  const publicKey = forge.pki.publicKeyFromPem(publicKeyPem);
+  const md = forge.md.sha256.create();
+  md.update(data, "utf8");
+  const signature = forge.util.decode64(signatureBase64);
+  return publicKey.verify(md.digest().bytes(), signature);
 };
 
-// RSA + AES 하이브리드 암호화
+// 하이브리드 암호화 (RSA + AES)
 export const hybridEncrypt = (
-  rsaPublicKey: string,
+  rsaPublicKeyPem: string,
   plaintext: string,
 ): string => {
-  const aesKey = crypto.randomBytes(32); // AES 256-bit key
-  const iv = crypto.randomBytes(16); // 128-bit IV
-  const algorithm = "aes-256-cbc";
+  const publicKey = forge.pki.publicKeyFromPem(rsaPublicKeyPem);
+  const aesKey = forge.random.getBytesSync(32);
+  const iv = forge.random.getBytesSync(16);
 
-  const cipher = crypto.createCipheriv(algorithm, aesKey, iv);
-  let encrypted = cipher.update(plaintext, "utf8", "base64");
-  encrypted += cipher.final("base64");
+  const cipher = forge.cipher.createCipher("AES-CBC", aesKey);
+  cipher.start({ iv });
+  cipher.update(forge.util.createBuffer(plaintext, "utf8"));
+  cipher.finish();
+  const ciphertext = forge.util.encode64(cipher.output.getBytes());
 
-  const encryptedKey = crypto.publicEncrypt(
-    {
-      key: rsaPublicKey,
-      padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
-      oaepHash: "sha256",
-    },
-    aesKey,
+  const encryptedKey = forge.util.encode64(
+    publicKey.encrypt(aesKey, "RSA-OAEP", {
+      md: forge.md.sha256.create(),
+    }),
   );
 
   const payload = {
-    iv: iv.toString("base64"),
-    ciphertext: encrypted,
-    encryptedKey: encryptedKey.toString("base64"),
+    iv: forge.util.encode64(iv),
+    ciphertext,
+    encryptedKey,
   };
 
-  return Buffer.from(JSON.stringify(payload), "utf8").toString("base64");
+  return forge.util.encode64(forge.util.encodeUtf8(JSON.stringify(payload)));
 };
 
-// RSA + AES 하이브리드 복호화
+// 하이브리드 복호화
 export const hybridDecrypt = (
-  rsaPrivateKey: string,
+  rsaPrivateKeyPem: string,
   encryptedPayload: string,
 ): string => {
-  const algorithm = "aes-256-cbc";
-
-  const decoded = Buffer.from(encryptedPayload, "base64").toString("utf8");
+  const privateKey = forge.pki.privateKeyFromPem(rsaPrivateKeyPem);
+  const decoded = forge.util.decodeUtf8(forge.util.decode64(encryptedPayload));
   const { iv, ciphertext, encryptedKey } = JSON.parse(decoded);
 
-  const aesKey = crypto.privateDecrypt(
+  const aesKey = privateKey.decrypt(
+    forge.util.decode64(encryptedKey),
+    "RSA-OAEP",
     {
-      key: rsaPrivateKey,
-      padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
-      oaepHash: "sha256",
+      md: forge.md.sha256.create(),
     },
-    Buffer.from(encryptedKey, "base64"),
   );
 
-  const decipher = crypto.createDecipheriv(
-    algorithm,
-    aesKey,
-    Buffer.from(iv, "base64"),
-  );
-
-  const decrypted =
-    decipher.update(ciphertext, "base64", "utf8") + decipher.final("utf8");
-
-  return decrypted;
+  const decipher = forge.cipher.createDecipher("AES-CBC", aesKey);
+  decipher.start({ iv: forge.util.decode64(iv) });
+  decipher.update(forge.util.createBuffer(forge.util.decode64(ciphertext)));
+  const success = decipher.finish();
+  if (!success) throw new Error("Hybrid decryption failed");
+  return decipher.output.toString("utf8");
 };
