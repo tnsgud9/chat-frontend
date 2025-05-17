@@ -2,6 +2,7 @@ import type {
   AuthLoginRequestDto,
   AuthLoginResponseDto,
   AuthSignupRequestDto,
+  AuthSignupResponseDto,
 } from "@/commons/dtos/auth.dto";
 import type { UserSession } from "@/commons/types/user-session.type";
 import { decryptAES } from "@/commons/utils/crypto-helper";
@@ -9,12 +10,13 @@ import { sessionStorageUtil } from "@/commons/utils/session-storage";
 import config from "@/config";
 import axios from "axios";
 
-export type SuccessCallback = (data: AuthLoginResponseDto) => void;
+export type SuccessLoginCallback = (data: AuthLoginResponseDto) => void;
+export type SuccessSignupCallback = (data: AuthSignupResponseDto) => void;
 export type FailureCallback = (error: Error) => void;
 
 export const login = (
   body: AuthLoginRequestDto,
-  onSuccess: SuccessCallback,
+  onSuccess: SuccessLoginCallback,
   onFailure: FailureCallback,
 ): void => {
   axios
@@ -43,9 +45,24 @@ export const login = (
     });
 };
 
-export const signup = async (dto: AuthSignupRequestDto) => {
-  const response = await axios.post(`${config.SERVER_URI}/auth/signup`, dto, {
-    withCredentials: true,
-  });
-  return response.data;
+export const signup = (
+  body: AuthSignupRequestDto,
+  onSuccess: SuccessSignupCallback,
+  onFailure: FailureCallback,
+): void => {
+  axios
+    .post(`${config.SERVER_URI}/auth/signup`, body, {
+      withCredentials: true,
+    })
+    .then((response) => {
+      const data = response.data as AuthSignupResponseDto;
+      onSuccess(data);
+    })
+    .catch((err) => {
+      const message = axios.isAxiosError(err)
+        ? err.response?.data?.message || err.message
+        : "Login failed";
+
+      onFailure(new Error(message));
+    });
 };
