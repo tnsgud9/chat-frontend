@@ -1,17 +1,31 @@
-import { createBrowserRouter, Outlet, RouterProvider } from "react-router";
+import {
+  createBrowserRouter,
+  Outlet,
+  redirect,
+  RouterProvider,
+} from "react-router";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Home from "./pages/Home";
 import AuthLayout from "./layouts/AuthLayout";
 import Chat from "./pages/Chat";
 import ChatLayout from "./layouts/ChatLayout";
+import { Cookies } from "react-cookie";
 
 const App = () => {
   const router = createBrowserRouter([
     {
       path: "/",
       children: [
-        { index: true, element: <Home /> },
+        {
+          index: true,
+          element: <Home />,
+          loader: () => {
+            const cookies = new Cookies();
+            if (!cookies.get("access_token")) throw redirect("/auth/login");
+            else throw redirect("chat");
+          },
+        },
         {
           path: "auth",
           element: (
@@ -32,6 +46,10 @@ const App = () => {
         },
         {
           path: "chat",
+          loader: () => {
+            const cookies = new Cookies();
+            if (!cookies.get("access_token")) throw redirect("/auth/login");
+          },
           element: (
             <ChatLayout>
               <Outlet />
