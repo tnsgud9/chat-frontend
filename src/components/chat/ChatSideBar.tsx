@@ -11,6 +11,8 @@ import {
 import ChatRoomList from "./ChatRoomList";
 import ChatUserPanel from "./ChatUserPanel";
 import NewChatDialog from "./NewChatDialog";
+import { localStorageUtil } from "@/commons/utils/local-storage";
+import type { UserInfo } from "@/commons/types/userinfo.type";
 
 interface ChatSideBarProps {
   title: string;

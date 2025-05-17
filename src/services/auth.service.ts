@@ -4,9 +4,9 @@ import type {
   AuthSignupRequestDto,
   AuthSignupResponseDto,
 } from "@/commons/dtos/auth.dto";
-import type { UserSession } from "@/commons/types/user-session.type";
+import type { UserInfo } from "@/commons/types/userinfo.type";
 import { decryptAES } from "@/commons/utils/crypto-helper";
-import { sessionStorageUtil } from "@/commons/utils/session-storage";
+import { localStorageUtil } from "@/commons/utils/local-storage";
 import config from "@/config";
 import axios from "axios";
 import { Cookies } from "react-cookie";
@@ -30,7 +30,7 @@ export const login = (
       const { id, nickname, publicKey, encryptedPrivateKey } = data;
 
       // 세션 스토리지에 값을 설정한다.
-      sessionStorageUtil.setItem<UserSession>("user", {
+      localStorageUtil.setItem<UserInfo>("user", {
         id,
         nickname,
         publicKey,
@@ -71,7 +71,7 @@ export const signup = (
 export const logout = (navigate: NavigateFunction) => {
   const cookies = new Cookies();
   cookies.remove("access_token");
-  sessionStorageUtil.removeItem("user");
+  localStorageUtil.removeItem("user");
 
   // 로그아웃 후 로그인 페이지로 이동
   navigate("/auth/login");

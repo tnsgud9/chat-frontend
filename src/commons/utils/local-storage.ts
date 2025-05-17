@@ -1,29 +1,29 @@
-export const sessionStorageUtil = {
+export const localStorageUtil = {
   setItem: <T>(key: string, value: T): void => {
     try {
       const json = JSON.stringify(value);
-      sessionStorage.setItem(key, json);
+      localStorage.setItem(key, json);
     } catch (err) {
-      console.error(`Error saving "${key}" to sessionStorage`, err);
+      console.error(`Error saving "${key}" to localStorage`, err);
     }
   },
 
   getItem: <T>(key: string): T | null => {
     try {
-      const json = sessionStorage.getItem(key);
+      const json = localStorage.getItem(key);
       if (!json) return null;
       return JSON.parse(json) as T;
     } catch (err) {
-      console.error(`Error parsing "${key}" from sessionStorage`, err);
+      console.error(`Error parsing "${key}" from localStorage`, err);
       return null;
     }
   },
 
   removeItem: (key: string): void => {
-    sessionStorage.removeItem(key);
+    localStorage.removeItem(key);
   },
 
   clear: (): void => {
-    sessionStorage.clear();
+    localStorage.clear();
   },
 };
