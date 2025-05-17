@@ -9,6 +9,8 @@ import { decryptAES } from "@/commons/utils/crypto-helper";
 import { sessionStorageUtil } from "@/commons/utils/session-storage";
 import config from "@/config";
 import axios from "axios";
+import { Cookies } from "react-cookie";
+import { redirect, useNavigate, type NavigateFunction } from "react-router";
 
 export type SuccessLoginCallback = (data: AuthLoginResponseDto) => void;
 export type SuccessSignupCallback = (data: AuthSignupResponseDto) => void;
@@ -65,4 +67,12 @@ export const signup = (
 
       onFailure(new Error(message));
     });
+};
+export const logout = (navigate: NavigateFunction) => {
+  const cookies = new Cookies();
+  cookies.remove("access_token");
+  sessionStorageUtil.removeItem("user");
+
+  // 로그아웃 후 로그인 페이지로 이동
+  navigate("/auth/login");
 };

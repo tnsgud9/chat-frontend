@@ -15,6 +15,9 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { logout } from "@/services/auth.service";
+import { Button } from "../ui/button";
+import { useNavigate } from "react-router";
 
 interface ChatUserPanelProps {
   nickname: string;
@@ -23,6 +26,7 @@ interface ChatUserPanelProps {
 
 const ChatUserPanel = ({ nickname, username }: ChatUserPanelProps) => {
   const { isMobile } = useSidebar();
+  const navigate = useNavigate();
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -55,7 +59,9 @@ const ChatUserPanel = ({ nickname, username }: ChatUserPanelProps) => {
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   {/* <AvatarImage src={user.avatar} alt={user.name} /> */}
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">
+                    {nickname.slice(0, 2)}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{nickname}</span>
@@ -68,7 +74,7 @@ const ChatUserPanel = ({ nickname, username }: ChatUserPanelProps) => {
               <BadgeCheck />
               Account
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => logout(navigate)}>
               <LogOut />
               Log out
             </DropdownMenuItem>
