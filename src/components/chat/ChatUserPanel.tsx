@@ -16,13 +16,12 @@ import {
 } from "@/components/ui/sidebar";
 import { logout } from "@/services/auth.service";
 import { useNavigate } from "react-router";
+import { localStorageUtil } from "@/commons/utils/local-storage";
+import type { UserInfo } from "@/commons/types/userinfo.type";
 
-interface ChatUserPanelProps {
-  nickname: string;
-  username: string;
-}
-
-const ChatUserPanel = ({ nickname, username }: ChatUserPanelProps) => {
+const ChatUserPanel = () => {
+  const { nickname } = localStorageUtil.getItem<UserInfo>("user")!;
+  const username = "";
   const { isMobile } = useSidebar();
   const navigate = useNavigate();
   return (

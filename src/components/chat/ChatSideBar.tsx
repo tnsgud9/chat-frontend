@@ -11,9 +11,6 @@ import {
 import ChatRoomList from "./ChatRoomList";
 import ChatUserPanel from "./ChatUserPanel";
 import NewChatDialog from "./NewChatDialog";
-import { localStorageUtil } from "@/commons/utils/local-storage";
-import type { UserInfo } from "@/commons/types/userinfo.type";
-
 interface ChatSideBarProps {
   title: string;
 }
@@ -25,11 +22,9 @@ const ChatSideBar = ({ title }: ChatSideBarProps) => {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="/">
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-extrabold">{title}</span>
-                </div>
-              </a>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-extrabold">{title}</span>
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
@@ -50,12 +45,10 @@ const ChatSideBar = ({ title }: ChatSideBarProps) => {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <ChatRoomList
-          list={[{ lastMessage: "Hello World", roomname: "Test" }]}
-        />
+        <ChatRoomList />
       </SidebarContent>
       <SidebarFooter>
-        <ChatUserPanel nickname={"Nextop"} username={"hello@world.com"} />
+        <ChatUserPanel />
       </SidebarFooter>
     </Sidebar>
   );
