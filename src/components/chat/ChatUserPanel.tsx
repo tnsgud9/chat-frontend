@@ -1,5 +1,4 @@
 import { BadgeCheck, ChevronsUpDown, LogOut } from "lucide-react";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -16,7 +15,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { logout } from "@/services/auth.service";
-import { Button } from "../ui/button";
 import { useNavigate } from "react-router";
 
 interface ChatUserPanelProps {
@@ -74,7 +72,13 @@ const ChatUserPanel = ({ nickname, username }: ChatUserPanelProps) => {
               <BadgeCheck />
               Account
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => logout(navigate)}>
+            <DropdownMenuItem
+              onClick={() => {
+                logout();
+                // 로그아웃 후 로그인 페이지로 이동
+                navigate("/auth/login");
+              }}
+            >
               <LogOut />
               Log out
             </DropdownMenuItem>

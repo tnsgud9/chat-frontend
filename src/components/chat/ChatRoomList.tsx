@@ -1,19 +1,34 @@
-import { MessageSquare } from "lucide-react";
 import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import type { ChatRoomElementProps } from "./ChatRoomElement";
 import { Input } from "@/components/ui/input";
+import { useEffect, useState } from "react";
+import { chatrooms } from "@/services/chat.service";
+import ChatRoomElement from "./ChatRoomElement";
 
-interface ChatRoomListProps {
-  list: ChatRoomElementProps[];
-}
+const ChatRoomList = () => {
+  const [rooms, setRooms] = useState<ChatRoomElementProps[]>([]);
 
-const ChatRoomList = ({ list }: ChatRoomListProps) => {
+  useEffect(() => {
+    (async () => {
+      const chatRoomDtos = await chatrooms();
+      const chatRoomList: ChatRoomElementProps[] = chatRoomDtos.map(
+        ({ name, id }): ChatRoomElementProps => {
+          return {
+            roomname: name,
+            lastMessage: "",
+            roomId: id,
+          };
+        },
+      );
+      setRooms(chatRoomList);
+    })();
+  }, []);
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Messages</SidebarGroupLabel>
@@ -24,21 +39,15 @@ const ChatRoomList = ({ list }: ChatRoomListProps) => {
         </SidebarMenuItem>
 
         {/* 채팅방 리스트 */}
-        {list.map(({ lastMessage, roomname }: ChatRoomElementProps) => (
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <a href="#">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-full">
-                  <MessageSquare className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{roomname}</span>
-                  <span className="truncate text-xs">{lastMessage}</span>
-                </div>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        ))}
+        {rooms.map(
+          ({ lastMessage, roomname, roomId }: ChatRoomElementProps) => (
+            <ChatRoomElement
+              lastMessage={lastMessage}
+              roomname={roomname}
+              roomId={roomId}
+            />
+          ),
+        )}
       </SidebarMenu>
     </SidebarGroup>
   );
