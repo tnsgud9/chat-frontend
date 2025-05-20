@@ -10,13 +10,10 @@ export const searchUserInfos = async (
   nickname: string,
 ): Promise<UserInfoDto[]> => {
   try {
-    const response = await axios.post(
-      `${config.SERVER_URI}/auth/login`,
-      { nickname } as UserSearchQueryRequestDto,
-      {
-        withCredentials: true,
-      },
-    );
+    const response = await axios.get(`${config.SERVER_URI}/user/search`, {
+      params: { nickname } as UserSearchQueryRequestDto,
+      withCredentials: true,
+    });
     return (response.data as UserSearchResponseDto).userInfos;
   } catch (error) {
     console.error("Error fetching data:", error);

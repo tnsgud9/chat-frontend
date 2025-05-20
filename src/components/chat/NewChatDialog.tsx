@@ -14,8 +14,25 @@ import {
 import { Label } from "@radix-ui/react-label";
 import { CircleUser, Plus, X } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { useEffect, useState } from "react";
+import { searchUserInfos } from "@/services/user.service";
+import type { UserInfoDto } from "@/commons/dtos/userinfo.dto";
+import type { UserInfo } from "@/commons/types/userinfo.type";
+import { localStorageUtil } from "@/commons/utils/local-storage";
+import { Button } from "../ui/button";
 
 const NewChatDialog = () => {
+  const userInfo = localStorageUtil.getItem<UserInfo>("user");
+  const [keyword, setKeyword] = useState<string>("");
+  const [searchedUsers, setSearchedUsers] = useState<UserInfoDto[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<UserInfoDto[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      setSearchedUsers(await searchUserInfos(keyword));
+    })();
+  }, [keyword]);
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -46,6 +63,9 @@ const NewChatDialog = () => {
             id="search"
             placeholder="Search the users..."
             className="pl-8"
+            onChange={async (e) => {
+              setSearchedUsers(await searchUserInfos(e.target.value));
+            }}
           />
           <CircleUser className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 select-none opacity-50" />
         </SidebarGroupContent>
@@ -58,28 +78,26 @@ const NewChatDialog = () => {
           </div>
           <div className="flex flex-wrap gap-2 px-2">
             {/* 더미 선택된 유저 */}
-            <div className="flex items-center gap-1 bg-muted rounded-full px-3 py-1 text-sm">
-              <CircleUser className="size-4 text-muted-foreground" />
-              <span>홍길동</span>
-              <button
-                type="button"
-                className="ml-1 text-xs text-muted-foreground hover:text-destructive"
-                tabIndex={-1}
-              >
-                <X className="size-3" />
-              </button>
-            </div>
-            <div className="flex items-center gap-1 bg-muted rounded-full px-3 py-1 text-sm">
-              <CircleUser className="size-4 text-muted-foreground" />
-              <span>김영희</span>
-              <button
-                type="button"
-                className="ml-1 text-xs text-muted-foreground hover:text-destructive"
-                tabIndex={-1}
-              >
-                <X className="size-3" />
-              </button>
-            </div>
+            {selectedUsers.map((selectedUser) => (
+              <div className="flex items-center gap-1 bg-muted rounded-full px-3 py-1 text-sm">
+                <CircleUser className="size-4 text-muted-foreground" />
+                <span>{selectedUser.nickname}</span>
+                <button
+                  type="button"
+                  className="ml-1 text-xs text-muted-foreground hover:text-destructive"
+                  tabIndex={-1}
+                  onClick={() =>
+                    setSelectedUsers(
+                      selectedUsers.filter(
+                        (user) => user.id !== selectedUser.id,
+                      ),
+                    )
+                  }
+                >
+                  <X className="size-3" />
+                </button>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -90,29 +108,45 @@ const NewChatDialog = () => {
             검색 결과
           </div>
           <ul className="space-y-1 px-2">
-            {/* 더미 검색 결과 유저 */}
-            <li>
-              <button
-                type="button"
-                className="flex items-center w-full gap-2 px-3 py-2 rounded hover:bg-accent transition"
-              >
-                <CircleUser className="size-5 text-muted-foreground" />
-                <span className="flex-1 text-sm text-left">이철수</span>
-                <span className="text-xs text-muted-foreground">선택</span>
-              </button>
-            </li>
-            <li>
-              <button
-                type="button"
-                className="flex items-center w-full gap-2 px-3 py-2 rounded hover:bg-accent transition"
-              >
-                <CircleUser className="size-5 text-muted-foreground" />
-                <span className="flex-1 text-sm text-left">박민수</span>
-                <span className="text-xs text-muted-foreground">선택</span>
-              </button>
-            </li>
+            {/* 검색 결과 유저 */}
+            {searchedUsers
+              .filter((searchedUser) => {
+                return !(
+                  searchedUser.id === userInfo?.id ||
+                  selectedUsers.some(
+                    (selectedUser) => selectedUser.id == searchedUser.id,
+                  )
+                );
+              })
+              .map((searchedUser) => (
+                <li>
+                  <button
+                    type="button"
+                    className="flex items-center w-full gap-2 px-3 py-2 rounded hover:bg-accent transition"
+                    onClick={() => {
+                      setSelectedUsers([...selectedUsers, searchedUser]);
+                      console.log(selectedUsers);
+                      console.log(searchedUsers);
+                      console.log(
+                        selectedUsers.some(
+                          (selectedUser) => selectedUser.id === searchedUser.id,
+                        ),
+                      );
+                    }}
+                  >
+                    <CircleUser className="size-5 text-muted-foreground" />
+                    <span className="flex-1 text-sm text-left">
+                      {searchedUser.nickname}
+                    </span>
+                    <span className="text-xs text-muted-foreground">선택</span>
+                  </button>
+                </li>
+              ))}
           </ul>
         </div>
+        <Button id="create" disabled={selectedUsers.length === 0}>
+          Create
+        </Button>
       </DialogContent>
     </Dialog>
   );
