@@ -56,14 +56,14 @@ const App = () => {
             </ChatLayout>
           ),
           children: [
-            { index: true, element: <Chat /> },
+            { index: true, element: <></> },
             {
               path: "rooms",
               element: <div>Chat Rooms Page</div>,
             },
             {
               path: ":roomId",
-              element: <div>Chat Room Page</div>,
+              element: <Chat />,
             },
           ],
         },

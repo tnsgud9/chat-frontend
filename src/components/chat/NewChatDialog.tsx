@@ -14,24 +14,18 @@ import {
 import { Label } from "@radix-ui/react-label";
 import { CircleUser, Plus, X } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { searchUserInfos } from "@/services/user.service";
 import type { UserInfoDto } from "@/commons/dtos/userinfo.dto";
 import type { UserInfo } from "@/commons/types/userinfo.type";
 import { localStorageUtil } from "@/commons/utils/local-storage";
 import { Button } from "../ui/button";
+import { createChatroom } from "@/services/chat.service";
 
 const NewChatDialog = () => {
   const userInfo = localStorageUtil.getItem<UserInfo>("user");
-  const [keyword, setKeyword] = useState<string>("");
   const [searchedUsers, setSearchedUsers] = useState<UserInfoDto[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<UserInfoDto[]>([]);
-
-  useEffect(() => {
-    (async () => {
-      setSearchedUsers(await searchUserInfos(keyword));
-    })();
-  }, [keyword]);
 
   return (
     <Dialog>
@@ -144,7 +138,17 @@ const NewChatDialog = () => {
               ))}
           </ul>
         </div>
-        <Button id="create" disabled={selectedUsers.length === 0}>
+        <Button
+          id="create"
+          disabled={selectedUsers.length === 0}
+          onClick={() => {
+            createChatroom(
+              searchedUsers,
+              () => {},
+              () => {},
+            );
+          }}
+        >
           Create
         </Button>
       </DialogContent>
