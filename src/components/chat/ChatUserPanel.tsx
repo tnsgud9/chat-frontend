@@ -20,8 +20,7 @@ import { localStorageUtil } from "@/commons/utils/local-storage";
 import type { UserInfo } from "@/commons/types/userinfo.type";
 
 const ChatUserPanel = () => {
-  const { nickname } = localStorageUtil.getItem<UserInfo>("user")!;
-  const username = "";
+  const { nickname, id } = localStorageUtil.getItem<UserInfo>("user")!;
   const { isMobile } = useSidebar();
   const navigate = useNavigate();
   return (
@@ -41,7 +40,7 @@ const ChatUserPanel = () => {
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{nickname}</span>
-                <span className="truncate text-xs">{username}</span>
+                <span className="truncate text-xs">{""}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -62,7 +61,7 @@ const ChatUserPanel = () => {
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{nickname}</span>
-                  <span className="truncate text-xs">{username}</span>
+                  <span className="truncate text-xs">{id}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
