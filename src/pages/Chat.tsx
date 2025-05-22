@@ -1,6 +1,7 @@
 import type { ChatRoomDto } from "@/commons/dtos/chatroom.dto";
 import type { MessageDto } from "@/commons/dtos/message.dto";
 import type { UserInfoDto } from "@/commons/dtos/userinfo.dto";
+import { ContentType } from "@/commons/enums/content.enum";
 import type { UserInfo } from "@/commons/types/userinfo.type";
 import { localStorageUtil } from "@/commons/utils/local-storage";
 import Message from "@/components/chat/Message";
@@ -15,6 +16,7 @@ import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { getChatRoomInfo, getMessages } from "@/services/chat.service";
+import { socketService } from "@/services/socket.service";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Separator } from "@radix-ui/react-separator";
 import { Send } from "lucide-react";
@@ -27,14 +29,23 @@ const Chat = () => {
   const [participants, setParticipants] = useState<UserInfoDto[]>();
   const userinfo = localStorageUtil.getItem<UserInfo>("user");
   const [chatRoomInfo, setChatRoomInfo] = useState<ChatRoomDto>();
+  const [inputMessage, setInputMessage] = useState<string>("");
+
   useEffect(() => {
     (async () => {
       const { messages, participants } = await getMessages(roomId!);
       setMessages(messages);
       setParticipants(participants);
       setChatRoomInfo(await getChatRoomInfo(roomId!));
+
+      socketService.connect(roomId!, userinfo!, chatRoomInfo!);
+      socketService.onReceiveMessage((message) => {
+        console.log(message);
+        console.log([...messages, message]);
+        setMessages([...messages, message]);
+      });
     })();
-  }, []);
+  }, [roomId, userinfo]);
 
   return (
     <>
@@ -56,6 +67,7 @@ const Chat = () => {
       <CardContent className="flex-1 p-4 overflow-y-auto">
         <ScrollArea className="h-full">
           <div className="space-y-4">
+            {/* 메시지 출력 구간 */}
             {messages?.map(({ sender, content, createdAt }) => {
               return (
                 <Message
@@ -73,8 +85,33 @@ const Chat = () => {
         </ScrollArea>
       </CardContent>
       <div className="flex items-center gap-2 border-t p-4">
-        <Input placeholder="Type your message..." className="flex-1" />
-        <Button type="submit" size="icon">
+        <Input
+          value={inputMessage}
+          placeholder="Type your message..."
+          className="flex-1"
+          onChange={(e) => setInputMessage(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey && inputMessage.length !== 0) {
+              e.preventDefault();
+              socketService.sendMessage({
+                content: inputMessage,
+                contentType: ContentType.MESSAGE,
+              });
+              setInputMessage("");
+            }
+          }}
+        />
+        <Button
+          type="submit"
+          size="icon"
+          disabled={inputMessage.length !== 0}
+          onClick={() => {
+            socketService.sendMessage({
+              content: inputMessage,
+              contentType: ContentType.MESSAGE,
+            });
+          }}
+        >
           <Send />
           <span className="sr-only">Send</span>
         </Button>
