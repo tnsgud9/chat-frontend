@@ -1,6 +1,7 @@
+import type { ChatRoomDto } from "@/commons/dtos/chatroom.dto";
 import type { MessageDto } from "@/commons/dtos/message.dto";
 import type { UserInfoDto } from "@/commons/dtos/userinfo.dto";
-import { UserInfo } from "@/commons/types/userinfo.type";
+import type { UserInfo } from "@/commons/types/userinfo.type";
 import { localStorageUtil } from "@/commons/utils/local-storage";
 import Message from "@/components/chat/Message";
 import {
@@ -13,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { getMessages } from "@/services/chat.service";
+import { getChatRoomInfo, getMessages } from "@/services/chat.service";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Separator } from "@radix-ui/react-separator";
 import { Send } from "lucide-react";
@@ -25,11 +26,13 @@ const Chat = () => {
   const [messages, setMessages] = useState<MessageDto[]>();
   const [participants, setParticipants] = useState<UserInfoDto[]>();
   const userinfo = localStorageUtil.getItem<UserInfo>("user");
+  const [chatRoomInfo, setChatRoomInfo] = useState<ChatRoomDto>();
   useEffect(() => {
     (async () => {
       const { messages, participants } = await getMessages(roomId!);
       setMessages(messages);
       setParticipants(participants);
+      setChatRoomInfo(await getChatRoomInfo(roomId!));
     })();
   }, []);
 
@@ -42,7 +45,7 @@ const Chat = () => {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbPage>DUMMY</BreadcrumbPage>
+                <BreadcrumbPage>{chatRoomInfo?.name}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -53,17 +56,19 @@ const Chat = () => {
       <CardContent className="flex-1 p-4 overflow-y-auto">
         <ScrollArea className="h-full">
           <div className="space-y-4">
-            {messages?.map(({ sender, content, createdAt }) => (
-              <Message
-                nickname={
-                  participants?.find((it) => it.id == sender)?.nickname ??
-                  "unknown"
-                }
-                createdAt={createdAt}
-                content={content}
-                isSender={sender === userinfo?.id}
-              />
-            ))}
+            {messages?.map(({ sender, content, createdAt }) => {
+              return (
+                <Message
+                  nickname={
+                    participants?.find((it) => it.id == sender)?.nickname ??
+                    "unknown"
+                  }
+                  createdAt={createdAt}
+                  content={content}
+                  isSender={sender === userinfo?.id}
+                />
+              );
+            })}
           </div>
         </ScrollArea>
       </CardContent>

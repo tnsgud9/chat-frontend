@@ -59,15 +59,20 @@ export const createChatroom = (
     });
 };
 
+export const getChatRoomInfo = async (roomId: string) => {
+  // 1. 채팅방 목록을 가져오기
+  const chatRoomDtos = await chatrooms();
+  // 2. 채팅방 목록 중 해당 방 ID 검색
+  const chatroomInfo = chatRoomDtos.find((dto) => dto.id === roomId);
+  return chatroomInfo; // 채팅 내용 반환
+};
+
 export const getMessages = async (
   roomId: string,
 ): Promise<{ participants: UserInfoDto[]; messages: MessageDto[] }> => {
   const userInfo = localStorageUtil.getItem<UserInfo>("user")!;
 
-  // 1. 채팅방 목록을 가져오기
-  const chatRoomDtos = await chatrooms();
-  // 2. 채팅방 목록 중 해당 방 ID 검색
-  const chatroomInfo = chatRoomDtos.find((dto) => dto.id === roomId);
+  const chatroomInfo = await getChatRoomInfo(roomId);
   if (!chatroomInfo) return { messages: [], participants: [] };
 
   // 3. 채팅방 개인키 복호화
