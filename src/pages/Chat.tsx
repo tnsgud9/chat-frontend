@@ -28,7 +28,7 @@ const Chat = () => {
   const [messages, setMessages] = useState<MessageDto[]>();
   const [participants, setParticipants] = useState<UserInfoDto[]>();
   const userinfo = localStorageUtil.getItem<UserInfo>("user");
-  const [chatRoomInfo, setChatRoomInfo] = useState<ChatRoomDto>();
+  let chatRoomInfo: ChatRoomDto | undefined;
   const [inputMessage, setInputMessage] = useState<string>("");
 
   useEffect(() => {
@@ -36,7 +36,7 @@ const Chat = () => {
       const { messages, participants } = await getMessages(roomId!);
       setMessages(messages);
       setParticipants(participants);
-      setChatRoomInfo(await getChatRoomInfo(roomId!));
+      chatRoomInfo = await getChatRoomInfo(roomId!);
 
       socketService.connect(roomId!, userinfo!, chatRoomInfo!);
       socketService.onReceiveMessage((message) => {
@@ -45,7 +45,7 @@ const Chat = () => {
         setMessages([...messages, message]);
       });
     })();
-  }, [roomId, userinfo]);
+  }, [roomId]);
 
   return (
     <>
@@ -104,7 +104,7 @@ const Chat = () => {
         <Button
           type="submit"
           size="icon"
-          disabled={inputMessage.length !== 0}
+          disabled={inputMessage.length === 0}
           onClick={() => {
             socketService.sendMessage({
               content: inputMessage,

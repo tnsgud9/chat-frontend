@@ -21,14 +21,17 @@ import type { UserInfo } from "@/commons/types/userinfo.type";
 import { localStorageUtil } from "@/commons/utils/local-storage";
 import { Button } from "../ui/button";
 import { createChatroom } from "@/services/chat.service";
+import { useNavigate } from "react-router";
 
 const NewChatDialog = () => {
   const userInfo = localStorageUtil.getItem<UserInfo>("user");
   const [searchedUsers, setSearchedUsers] = useState<UserInfoDto[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<UserInfoDto[]>([]);
+  const [open, setOpen] = useState(false); // Dialog 상태 관리
+  const navigate = useNavigate();
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <SidebarMenuButton size="lg" asChild>
           <button type="button">
@@ -119,13 +122,6 @@ const NewChatDialog = () => {
                     className="flex items-center w-full gap-2 px-3 py-2 rounded hover:bg-accent transition"
                     onClick={() => {
                       setSelectedUsers([...selectedUsers, searchedUser]);
-                      console.log(selectedUsers);
-                      console.log(searchedUsers);
-                      console.log(
-                        selectedUsers.some(
-                          (selectedUser) => selectedUser.id === searchedUser.id,
-                        ),
-                      );
                     }}
                   >
                     <CircleUser className="size-5 text-muted-foreground" />
@@ -144,7 +140,10 @@ const NewChatDialog = () => {
           onClick={() => {
             createChatroom(
               searchedUsers,
-              () => {},
+              (room) => {
+                setOpen(false); // 다이얼로그 닫기
+                navigate(`/chat/${room.id}`); // 채팅방으로 이동
+              },
               () => {},
             );
           }}
