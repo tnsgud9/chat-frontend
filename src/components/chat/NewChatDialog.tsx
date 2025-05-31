@@ -138,10 +138,12 @@ const NewChatDialog = () => {
           id="create"
           disabled={selectedUsers.length === 0}
           onClick={() => {
+            console.log(selectedUsers);
             createChatroom(
-              searchedUsers,
+              selectedUsers,
               (room) => {
                 setOpen(false); // 다이얼로그 닫기
+                setSelectedUsers([]); // 선택 유저도 초기화
                 navigate(`/chat/${room.id}`); // 채팅방으로 이동
               },
               () => {},

@@ -40,7 +40,7 @@ export const createChatroom = (
 ): void => {
   axios
     .post(
-      `${config.SERVER_URI}/chat/rooms`,
+      `${config.SERVER_URI}/chat/rooms/create`,
       {
         participantIds: participants.map((participant) => participant.id),
       } as ChatRoomCreateRequestDto,

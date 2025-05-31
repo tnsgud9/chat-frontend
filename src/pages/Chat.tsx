@@ -40,12 +40,11 @@ const Chat = () => {
 
       socketService.connect(roomId!, userinfo!, chatRoomInfo!);
       socketService.onReceiveMessage((message) => {
-        console.log(message);
-        console.log([...messages, message]);
-        setMessages([...messages, message]);
+        console.log(messages);
+        setMessages(() => [...messages, message]);
       });
     })();
-  }, [roomId]);
+  }, [roomId, messages]);
 
   return (
     <>
