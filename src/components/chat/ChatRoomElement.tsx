@@ -13,16 +13,15 @@ const ChatRoomElement = ({
   lastMessage,
   roomId,
 }: ChatRoomElementProps) => {
-  const navigate = useNavigate();
   return (
     <SidebarMenuItem>
       <SidebarMenuButton size="lg" asChild>
         <NavLink to={roomId}>
-          <div>
-            <div className="flex aspect-square size-8 items-center justify-center rounded-full">
+          <div className="flex items-center space-x-2 overflow-hidden">
+            <div className="flex aspect-square size-8 items-center justify-center rounded-full shrink-0">
               <MessageSquare className="size-4" />
             </div>
-            <div className="grid flex-1 text-left text-sm leading-tight">
+            <div className="flex flex-col overflow-hidden text-left text-sm leading-tight">
               <span className="truncate font-medium">{roomname}</span>
               <span className="truncate text-xs">{lastMessage}</span>
             </div>

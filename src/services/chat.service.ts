@@ -58,37 +58,20 @@ export const createChatroom = (
     });
 };
 
-export const getChatRoomInfo = async (roomId: string) => {
-  // 1. 채팅방 목록을 가져오기
-  const chatRoomDtos = await chatrooms();
-  // 2. 채팅방 목록 중 해당 방 ID 검색
-  const chatroomInfo = chatRoomDtos.find((dto) => dto.id === roomId);
-  return chatroomInfo; // 채팅 내용 반환
-};
-
 export const getMessages = async (
-  roomId: string,
+  { encryptedPrivateKey, id }: ChatRoomDto,
   userInfo: UserInfo,
 ): Promise<{ participants: UserInfoDto[]; messages: MessageDto[] }> => {
-  const chatroomInfo = await getChatRoomInfo(roomId);
-  if (!chatroomInfo) return { messages: [], participants: [] };
-
   // 3. 채팅방 개인키 복호화
-  const privateKey = hybridDecrypt(
-    userInfo.privateKey,
-    chatroomInfo.encryptedPrivateKey,
-  );
+  const privateKey = hybridDecrypt(userInfo.privateKey, encryptedPrivateKey);
 
   let messages: MessageDto[];
   let participants: UserInfoDto[];
   // 4. 채팅방에서 메시지 가져오기
   try {
-    const response = await axios.get(
-      `${config.SERVER_URI}/chat/rooms/${roomId}`,
-      {
-        withCredentials: true,
-      },
-    );
+    const response = await axios.get(`${config.SERVER_URI}/chat/rooms/${id}`, {
+      withCredentials: true,
+    });
     const responseData = response.data as ChatRoomInfoResponseDto;
     participants = responseData.participants;
     messages = responseData.messages;

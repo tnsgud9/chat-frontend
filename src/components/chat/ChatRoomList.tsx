@@ -9,13 +9,16 @@ import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { chatrooms } from "@/services/chat.service";
 import ChatRoomElement from "./ChatRoomElement";
+import { useChatRoomStore } from "@/stores/chatroomStore";
 
 const ChatRoomList = () => {
   const [rooms, setRooms] = useState<ChatRoomElementProps[]>([]);
+  const { setChatRooms } = useChatRoomStore();
 
   useEffect(() => {
     (async () => {
       const chatRoomDtos = await chatrooms();
+      setChatRooms(chatRoomDtos);
       const chatRoomList: ChatRoomElementProps[] = chatRoomDtos.map(
         ({ name, id }): ChatRoomElementProps => {
           return {
