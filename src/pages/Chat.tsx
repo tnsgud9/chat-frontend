@@ -2,8 +2,6 @@ import type { ChatRoomDto } from "@/commons/dtos/chatroom.dto";
 import type { MessageDto } from "@/commons/dtos/message.dto";
 import type { UserInfoDto } from "@/commons/dtos/userinfo.dto";
 import { ContentType } from "@/commons/enums/content.enum";
-import type { UserInfo } from "@/commons/types/userinfo.type";
-import { localStorageUtil } from "@/commons/utils/local-storage";
 import Message from "@/components/chat/Message";
 import {
   Breadcrumb,
@@ -17,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { getChatRoomInfo, getMessages } from "@/services/chat.service";
 import { socketService } from "@/services/socket.service";
+import { useUserStore } from "@/stores/UserStore";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Separator } from "@radix-ui/react-separator";
 import { Send } from "lucide-react";
@@ -27,18 +26,19 @@ const Chat = () => {
   const { roomId } = useParams();
   const [messages, setMessages] = useState<MessageDto[]>();
   const [participants, setParticipants] = useState<UserInfoDto[]>();
-  const userinfo = localStorageUtil.getItem<UserInfo>("user");
+
+  const { userInfo } = useUserStore();
   let chatRoomInfo: ChatRoomDto | undefined;
   const [inputMessage, setInputMessage] = useState<string>("");
 
   useEffect(() => {
     (async () => {
-      const { messages, participants } = await getMessages(roomId!);
+      const { messages, participants } = await getMessages(roomId!, userInfo!);
       setMessages(messages);
       setParticipants(participants);
       chatRoomInfo = await getChatRoomInfo(roomId!);
 
-      socketService.connect(roomId!, userinfo!, chatRoomInfo!);
+      socketService.connect(roomId!, userInfo!, chatRoomInfo!);
       socketService.onReceiveMessage((message) => {
         console.log(messages);
         setMessages(() => [...messages, message]);
@@ -76,7 +76,7 @@ const Chat = () => {
                   }
                   createdAt={createdAt}
                   content={content}
-                  isSender={sender === userinfo?.id}
+                  isSender={sender === userInfo?.id}
                 />
               );
             })}

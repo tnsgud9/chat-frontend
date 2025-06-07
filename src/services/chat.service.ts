@@ -9,7 +9,6 @@ import type { MessageDto } from "@/commons/dtos/message.dto";
 import type { UserInfoDto } from "@/commons/dtos/userinfo.dto";
 import type { UserInfo } from "@/commons/types/userinfo.type";
 import { hybridDecrypt } from "@/commons/utils/crypto-helper";
-import { localStorageUtil } from "@/commons/utils/local-storage";
 import config from "@/config";
 import axios from "axios";
 
@@ -69,9 +68,8 @@ export const getChatRoomInfo = async (roomId: string) => {
 
 export const getMessages = async (
   roomId: string,
+  userInfo: UserInfo,
 ): Promise<{ participants: UserInfoDto[]; messages: MessageDto[] }> => {
-  const userInfo = localStorageUtil.getItem<UserInfo>("user")!;
-
   const chatroomInfo = await getChatRoomInfo(roomId);
   if (!chatroomInfo) return { messages: [], participants: [] };
 

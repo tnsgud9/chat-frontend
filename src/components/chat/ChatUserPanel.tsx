@@ -16,11 +16,11 @@ import {
 } from "@/components/ui/sidebar";
 import { logout } from "@/services/auth.service";
 import { useNavigate } from "react-router";
-import { localStorageUtil } from "@/commons/utils/local-storage";
-import type { UserInfo } from "@/commons/types/userinfo.type";
+import { useUserStore } from "@/stores/UserStore";
 
 const ChatUserPanel = () => {
-  const { nickname, id } = localStorageUtil.getItem<UserInfo>("user")!;
+  const { userInfo, clearUserInfo } = useUserStore();
+  const { nickname, id } = userInfo!;
   const { isMobile } = useSidebar();
   const navigate = useNavigate();
   return (
@@ -73,6 +73,7 @@ const ChatUserPanel = () => {
             <DropdownMenuItem
               onClick={() => {
                 logout();
+                clearUserInfo();
                 // 로그아웃 후 로그인 페이지로 이동
                 navigate("/auth/login");
               }}

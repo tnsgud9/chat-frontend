@@ -4,10 +4,14 @@ import { Label } from "@/components/ui/label";
 import { useCallback, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { login } from "@/services/auth.service";
+import { useUserStore } from "@/stores/UserStore";
+import { decryptAES } from "@/commons/utils/crypto-helper";
 
 const LoginForm = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const { setUserInfo } = useUserStore();
+
   const navigate = useNavigate();
   // useCallback은 함수를 메모이제이션하여, 의존성 배열에 나열된 값이 변경될 때만 함수를 재생성한다.
   const handleSubmit = useCallback(
@@ -17,7 +21,13 @@ const LoginForm = () => {
       // 로그인 API 호출, username과 password를 전달
       login(
         { username, password },
-        () => {
+        ({ id, nickname, encryptedPrivateKey, publicKey }) => {
+          setUserInfo({
+            id,
+            nickname,
+            publicKey,
+            privateKey: decryptAES(password, encryptedPrivateKey),
+          });
           navigate("/chat");
         },
         ({ message }) => {

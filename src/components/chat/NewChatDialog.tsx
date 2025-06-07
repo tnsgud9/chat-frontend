@@ -17,14 +17,13 @@ import { Separator } from "@/components/ui/separator";
 import { useState } from "react";
 import { searchUserInfos } from "@/services/user.service";
 import type { UserInfoDto } from "@/commons/dtos/userinfo.dto";
-import type { UserInfo } from "@/commons/types/userinfo.type";
-import { localStorageUtil } from "@/commons/utils/local-storage";
 import { Button } from "../ui/button";
 import { createChatroom } from "@/services/chat.service";
 import { useNavigate } from "react-router";
+import { useUserStore } from "@/stores/UserStore";
 
 const NewChatDialog = () => {
-  const userInfo = localStorageUtil.getItem<UserInfo>("user");
+  const { userInfo } = useUserStore();
   const [searchedUsers, setSearchedUsers] = useState<UserInfoDto[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<UserInfoDto[]>([]);
   const [open, setOpen] = useState(false); // Dialog 상태 관리
