@@ -7,7 +7,7 @@ import config from "@/config";
 import { io, Socket } from "socket.io-client";
 
 class SocketService {
-  private socket: Socket;
+  public socket: Socket;
   private chatroomPublicKey: string = "";
   private chatroomPrivateKey: string = "";
   constructor() {
@@ -33,6 +33,7 @@ class SocketService {
 
   onReceiveMessage(handler: (message: MessageDto) => void) {
     this.socket.on("message", (message: MessageDto) => {
+      console.log("수신! ", message);
       message.content = hybridDecrypt(this.chatroomPrivateKey, message.content);
       handler(message);
     });

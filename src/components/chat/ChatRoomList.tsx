@@ -13,9 +13,10 @@ import { useChatRoomStore } from "@/stores/chatroomStore";
 
 const ChatRoomList = () => {
   const [rooms, setRooms] = useState<ChatRoomElementProps[]>([]);
-  const { setChatRooms } = useChatRoomStore();
+  const { chatRooms: chatStore, setChatRooms } = useChatRoomStore();
 
   useEffect(() => {
+    console.log(chatStore);
     (async () => {
       const chatRoomDtos = await chatrooms();
       setChatRooms(chatRoomDtos);

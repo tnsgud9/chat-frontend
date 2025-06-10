@@ -5,9 +5,7 @@ import App from "./App.tsx";
 import { CookiesProvider } from "react-cookie";
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <CookiesProvider>
-      <App />
-    </CookiesProvider>
-  </StrictMode>,
+  <CookiesProvider>
+    <App />
+  </CookiesProvider>,
 );
