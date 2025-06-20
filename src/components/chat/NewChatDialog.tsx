@@ -21,6 +21,7 @@ import { Button } from "../ui/button";
 import { createChatroom } from "@/services/chat.service";
 import { useNavigate } from "react-router";
 import { useUserStore } from "@/stores/UserStore";
+import { useChatRoomStore } from "@/stores/chatroomStore";
 
 const NewChatDialog = () => {
   const { userInfo } = useUserStore();
@@ -28,6 +29,7 @@ const NewChatDialog = () => {
   const [selectedUsers, setSelectedUsers] = useState<UserInfoDto[]>([]);
   const [open, setOpen] = useState(false); // Dialog 상태 관리
   const navigate = useNavigate();
+  const { addChatRoom } = useChatRoomStore();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -141,6 +143,7 @@ const NewChatDialog = () => {
             createChatroom(
               selectedUsers,
               (room) => {
+                addChatRoom(room); // 생성된 방 정보 추가
                 setOpen(false); // 다이얼로그 닫기
                 setSelectedUsers([]); // 선택 유저도 초기화
                 navigate(`/chat/${room.id}`); // 채팅방으로 이동

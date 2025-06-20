@@ -15,23 +15,25 @@ const ChatRoomList = () => {
   const [rooms, setRooms] = useState<ChatRoomElementProps[]>([]);
   const { chatRooms: chatStore, setChatRooms } = useChatRoomStore();
 
+  // 최초 데이터 불러오기
   useEffect(() => {
-    console.log(chatStore);
     (async () => {
       const chatRoomDtos = await chatrooms();
       setChatRooms(chatRoomDtos);
-      const chatRoomList: ChatRoomElementProps[] = chatRoomDtos.map(
-        ({ name, id }): ChatRoomElementProps => {
-          return {
-            roomname: name,
-            lastMessage: "",
-            roomId: id,
-          };
-        },
-      );
-      setRooms(chatRoomList);
     })();
-  }, []);
+  }, [setChatRooms]);
+
+  // chatStore 값이 변경될 때마다 rooms 상태 갱신
+  useEffect(() => {
+    const chatRoomList: ChatRoomElementProps[] = chatStore.map(
+      ({ name, id }): ChatRoomElementProps => ({
+        roomname: name,
+        lastMessage: "",
+        roomId: id,
+      }),
+    );
+    setRooms(chatRoomList);
+  }, [chatStore]);
 
   return (
     <SidebarGroup>

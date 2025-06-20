@@ -20,7 +20,7 @@ import { useUserStore } from "@/stores/UserStore";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Separator } from "@radix-ui/react-separator";
 import { Send } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router";
 
 const Chat = () => {
@@ -33,6 +33,9 @@ const Chat = () => {
 
   const [chatRoomInfo, setChatRoomInfo] = useState<ChatRoomDto | undefined>();
   const [inputMessage, setInputMessage] = useState<string>("");
+
+  const messageEndRef = useRef<HTMLDivElement | null>(null); // 메시지 하단을 감지할 ref
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null); // 메시지 영역 ref
 
   useEffect(() => {
     (async () => {
@@ -47,8 +50,26 @@ const Chat = () => {
       socketService.disconnect();
       socketService.connect(roomId!, userInfo!, chatRoomInfo!);
       socketService.onReceiveMessage((message) => {
-        console.log(messages);
-        setMessages((prev) => [...prev, message]);
+        const container = scrollContainerRef.current;
+        const isScrolledToBottom = container
+          ? container.scrollHeight -
+              container.scrollTop -
+              container.clientHeight <
+            10
+          : false;
+
+        setMessages((prev) => {
+          const newMessages = [...prev, message];
+
+          if (isScrolledToBottom) {
+            // DOM 업데이트 이후 실행
+            setTimeout(() => {
+              messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+            }, 0);
+          }
+
+          return newMessages;
+        });
       });
     })();
   }, [roomId]);
@@ -68,7 +89,10 @@ const Chat = () => {
       </header>
 
       {/* 메시지 영역 */}
-      <div className="flex-1 overflow-y-auto px-4 py-2 space-y-4">
+      <div
+        className="flex-1 overflow-y-auto px-4 py-2 space-y-4"
+        ref={scrollContainerRef}
+      >
         {messages?.map(({ sender, content, createdAt }) => (
           <Message
             key={`${sender}-${createdAt}`}
@@ -81,6 +105,7 @@ const Chat = () => {
             isSender={sender === userInfo?.id}
           />
         ))}
+        <div ref={messageEndRef} /> {/* 하단 스크롤용 앵커 */}
       </div>
 
       {/* 입력창 */}
