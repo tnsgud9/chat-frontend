@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { useCallback, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { login } from "@/services/auth.service";
-import { useUserStore } from "@/stores/UserStore";
+import { useUserStore } from "@/stores/userStore";
 import { decryptAES } from "@/commons/utils/crypto-helper";
 
 const LoginForm = () => {

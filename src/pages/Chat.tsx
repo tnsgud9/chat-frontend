@@ -16,7 +16,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { getMessages } from "@/services/chat.service";
 import { socketService } from "@/services/socket.service";
 import { useChatRoomStore } from "@/stores/chatroomStore";
-import { useUserStore } from "@/stores/UserStore";
+import { useUserStore } from "@/stores/userStore";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Separator } from "@radix-ui/react-separator";
 import { Send } from "lucide-react";

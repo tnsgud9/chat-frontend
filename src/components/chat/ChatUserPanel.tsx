@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { logout } from "@/services/auth.service";
 import { useNavigate } from "react-router";
-import { useUserStore } from "@/stores/UserStore";
+import { useUserStore } from "@/stores/userStore";
 
 const ChatUserPanel = () => {
   const { userInfo, clearUserInfo } = useUserStore();

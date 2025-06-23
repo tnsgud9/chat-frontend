@@ -20,7 +20,7 @@ import type { UserInfoDto } from "@/commons/dtos/userinfo.dto";
 import { Button } from "../ui/button";
 import { createChatroom } from "@/services/chat.service";
 import { useNavigate } from "react-router";
-import { useUserStore } from "@/stores/UserStore";
+import { useUserStore } from "@/stores/userStore";
 import { useChatRoomStore } from "@/stores/chatroomStore";
 
 const NewChatDialog = () => {
